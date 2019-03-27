@@ -1,0 +1,88 @@
+set_io clk 129
+
+set_io -nowarn io_leds[0] 143
+set_io -nowarn io_leds[1] 114
+set_io -nowarn io_leds[2] 112
+set_io -nowarn io_leds[3] 107
+set_io -nowarn io_leds[4] 144
+set_io -nowarn io_leds[5] 113
+set_io -nowarn io_leds[6] 110
+set_io -nowarn io_leds[7] 106
+
+set_io -nowarn io_switchs[0] 8
+set_io -nowarn io_switchs[1] 10
+set_io -nowarn io_switchs[2] 7
+set_io -nowarn io_switchs[3] 9
+set_io -nowarn io_switchs[4] 4
+set_io -nowarn io_switchs[5] 2
+set_io -nowarn io_switchs[6] 3
+set_io -nowarn io_switchs[7] 1
+
+set_io -nowarn io_uart_rxd 88
+set_io -nowarn io_uart_txd 85
+
+set_io -nowarn io_button 63
+
+set_io -nowarn io_blue_led 71
+set_io -nowarn io_green_led 67
+set_io -nowarn io_yellow_led 68
+set_io -nowarn io_red_led 70
+set_io -nowarn io_led 71
+
+set_io -nowarn io_d 85
+set_io -nowarn io_seg[0] 88
+set_io -nowarn io_seg[1] 91
+set_io -nowarn io_seg[2] 94
+set_io -nowarn io_seg[3] 97
+set_io -nowarn io_seg[4] 99
+set_io -nowarn io_seg[5] 102
+set_io -nowarn io_seg[6] 105
+
+set_io -nowarn io_speaker 34
+set_io -nowarn io_pin 34
+set_io -nowarn io_echo 34
+set_io -nowarn io_trigger 33
+
+# SRAM
+set_io ADR[0] 137
+set_io ADR[1] 138
+set_io ADR[2] 139
+set_io ADR[3] 141
+set_io ADR[4] 142
+set_io ADR[5] 42
+set_io ADR[6] 43
+set_io ADR[7] 44
+set_io ADR[8] 73
+set_io ADR[9] 74
+set_io ADR[10] 75
+set_io ADR[11] 76
+set_io ADR[12] 115
+set_io ADR[13] 116
+set_io ADR[14] 117
+set_io ADR[15] 118
+set_io ADR[16] 119
+set_io ADR[17] 78
+
+set_io DAT[0] 136
+set_io DAT[1] 135
+set_io DAT[2] 134
+set_io DAT[3] 130
+set_io DAT[4] 125
+set_io DAT[5] 124
+set_io DAT[6] 122
+set_io DAT[7] 121
+set_io DAT[8] 62
+set_io DAT[9] 61
+set_io DAT[10] 60
+set_io DAT[11] 56
+set_io DAT[12] 55
+set_io DAT[13] 48
+set_io DAT[14] 47
+set_io DAT[15] 45
+
+set_io RAMOE 29
+set_io RAMWE 120
+set_io RAMCS 23
+set_io RAMUB 28
+set_io RAMLB 24
+
