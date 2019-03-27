@@ -22,9 +22,9 @@ class QspiTest extends Component {
   val qckR = Reg(Bits(3 bits))
   qckR := qckR(1 downto 0) ## io.qck
 
-  val qckRise = (qckR(2 downto 1) === 1)
-  val qckFall = (qckR(2 downto 1) === 2)
-  val qssRise = (qssR(2 downto 1) === 1)
+  val qckRise = (qckR(2 downto 1) === B"01")
+  val qckFall = (qckR(2 downto 1) === B"10")
+  val qssRise = (qssR(2 downto 1) === B"01")
 
   val rx = new QspiSlaveRX
   rx.io.qckRise := qckRise
@@ -36,23 +36,27 @@ class QspiTest extends Component {
   tx.io.qssRise := qssRise
   io.qd.write := tx.io.qd
   
+  val readEnable = Reg(Bits(4 bits))
+  io.qd.writeEnable := ~readEnable
+
+  when (qssRise) { // deselect io.qss
+    readEnable := ~readEnable
+  }
+
+  // Led diagnostics  
   val leds = Reg(Bits(12 bits))
   io.leds := leds
-  
-  leds(11 downto 8) := rx.io.leds
 
-  when (rx.io.rxReady) {
+  when (rx.io.rxReady) {  
     leds(7 downto 0) := rx.io.rxData
   }
 
+  leds(8) := io.qd.read(0)
+  leds(9) := io.qd.read(1)
+  leds(10) := io.qck
+  leds(11) := io.qss
+  
   tx.io.txData := leds(7 downto 0)
-
-  val writeEnable = Reg(Bits(4 bits))
-  io.qd.writeEnable := writeEnable
-
-  when (qssR(2 downto 1) === 1) { // deselect qss
-    writeEnable := ~writeEnable
-  }
 }
   
 class QspiSlaveTX extends Component {
@@ -81,8 +85,8 @@ class QspiSlaveTX extends Component {
       outData := io.txData(7 downto 4)
       firstNibble := False
     } otherwise {
-     outData := io.txData(3 downto 0)
-     txReady := True
+      outData := io.txData(3 downto 0)
+      txReady := True
     }
   }    
 }
@@ -94,24 +98,14 @@ class QspiSlaveRX extends Component {
     val qd = in Bits(4 bits)
     val rxReady = out Bool
     val rxData = out Bits(8 bits)
-    val leds = out Bits(4 bits)
   }
   
   val shiftReg = Reg(Bits(8 bits))
   io.rxData := shiftReg
   
-  val nibble = Reg(UInt(4 bits))
   val firstNibble = Reg(Bool)
 
-  val leds = Reg(Bits(4 bits))
-  io.leds := leds
-
-  leds(3 downto 2) := 0
-
-  when (io.qssRise) { // io.qss rising
-    leds(0) := True
-    shiftReg := 0
-    nibble := 0
+  when (io.qssRise) {
     firstNibble := True
   } 
 
@@ -120,9 +114,7 @@ class QspiSlaveRX extends Component {
 
   rxReady := False
 
-  when (io.qckRise) { // io.qck rising
-    nibble := nibble + 1
-    leds(1) := True
+  when (io.qckRise) { 
     when (firstNibble) {
       shiftReg(7 downto 4) := io.qd
       firstNibble := False
