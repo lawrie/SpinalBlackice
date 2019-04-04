@@ -1,5 +1,5 @@
-VERILOG = PWMTest.v
-PCF = pwm.pcf
+VERILOG = qspitop.v QspiTest.v
+PCF = qspi.pcf
 
 prog : bin/toplevel.bin
 	cat bin/toplevel.bin >/dev/ttyACM0

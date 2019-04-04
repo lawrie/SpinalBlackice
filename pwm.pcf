@@ -1,0 +1,12 @@
+set_io clk 129
+
+set_io -nowarn io_pins[0] 143
+set_io -nowarn io_pins[1] 114
+set_io -nowarn io_pins[2] 112
+set_io -nowarn io_pins[3] 107
+set_io -nowarn io_pins[4] 144
+set_io -nowarn io_pins[5] 113
+set_io -nowarn io_pins[6] 110
+set_io -nowarn io_pins[7] 106
+
+set_io reset 63
