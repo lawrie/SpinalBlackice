@@ -1,0 +1,21 @@
+set_io io_output_rgb1_r 143
+set_io io_output_rgb1_g 114
+set_io io_output_rgb1_b 112
+
+set_io io_output_rgb2_r 144
+set_io io_output_rgb2_g 113
+set_io io_output_rgb2_b 110
+
+set_io io_output_row[0] 105
+set_io io_output_row[1] 102
+set_io io_output_row[2] 99
+set_io io_output_row[3] 97
+ 
+set_io io_output_latch 101
+set_io io_output_oe 104
+set_io io_output_clk 98
+ 
+set_io io_r 37
+set_io io_g 38
+set_io io_b 39
+set_io clk 129
