@@ -6,15 +6,31 @@ import spinal.lib._
 import spinal.lib.graphic._
 import scala.math._
 
+case class Gamma(source_bits : Int, destination_bits : Int, gamma_factor : Int )
+{
+  val numberOfElements : Int = pow(2, source_bits).toInt
+
+  def apply(input : UInt) : UInt = {
+    input.muxList(for(index <- 0 until numberOfElements) yield {
+      var result = UInt(destination_bits bits)
+      var in_f = index.toFloat / (numberOfElements - 1)
+      var gamma_f = pow(in_f, gamma_factor)
+      var ov = gamma_f * (pow(2, destination_bits) - 1)
+      result := ceil(ov).toInt
+      (index, result)
+    } )
+  }
+}
+
 case class LedPixel() extends Bundle {
     val r = Bool
     val g = Bool
     val b = Bool
 
-    def pwm(value: Rgb, counter: UInt) ={
-        r := value.r > counter
-        g := value.g > counter
-        b := value.b > counter
+    def pwm(value: Rgb, counter: UInt, gamma: Gamma) ={
+        r := gamma(value.r) > counter
+        g := gamma(value.g) > counter
+        b := gamma(value.b) > counter
     }
 }
 
@@ -29,7 +45,7 @@ case class LedMatrix(rowBits: Int) extends Bundle {
 
 class LedMatrixCtrl(rows: Int = 32, columns: Int = 32, 
                     rgbConfig : RgbConfig = RgbConfig(4,4,4), 
-                    colorDepth: Int = 16) extends Component {
+                    colorDepth: Int = 4) extends Component {
     val io = new Bundle{
         val output = out(LedMatrix(log2Up(rows/2)))
         val pixels = slave Stream (Rgb(rgbConfig))
@@ -37,22 +53,24 @@ class LedMatrixCtrl(rows: Int = 32, columns: Int = 32,
 
     val rowCounter = Counter(rows/2)
     val columnCounter = Counter(columns)
-    val colorCounter = Counter(colorDepth)
-    val state = Reg(Bool)
+    val colorCounter = Counter((colorDepth + 5) bits)
+    val pixelClk = Reg(Bool)
 
     io.output.latch := False
     io.output.oe := False
     io.output.row := rowCounter.value.asBits
-    io.output.clk := state
+    io.output.clk := pixelClk
 
-    io.output.rgb1.pwm(io.pixels,colorCounter)
-    io.output.rgb2.pwm(io.pixels,colorCounter)
+    val gamma = Gamma(colorDepth, colorDepth + 5, 5)
 
-    state := !state
+    io.output.rgb1.pwm(io.pixels,colorCounter, gamma)
+    io.output.rgb2.pwm(io.pixels,colorCounter, gamma)
 
-    io.pixels.ready := state
+    pixelClk := !pixelClk
 
-    when (!state) {
+    io.pixels.ready := pixelClk
+
+    when (!pixelClk) {
         columnCounter.increment()
     }
   
@@ -67,7 +85,7 @@ class LedMatrixCtrl(rows: Int = 32, columns: Int = 32,
     }
 }
 
-class LedMatrixTest(rows: Int = 32, columns: Int = 32, colorDepth: Int = 16) extends Component {
+class LedMatrixTest(rows: Int = 32, columns: Int = 32, colorDepth: Int = 4) extends Component {
     val io = new Bundle{
         val output = out(LedMatrix(log2Up(rows/2)))
         val r = in Bool
@@ -75,10 +93,10 @@ class LedMatrixTest(rows: Int = 32, columns: Int = 32, colorDepth: Int = 16) ext
         val b = in Bool
     }
 
-    val frequency = 1000
+    val frequency = 2000
 
-    val counter = Counter((rows/2)*columns*colorDepth*frequency)
-    val intensity = Counter(colorDepth)
+    val counter = Counter((rows/2)*columns*pow(2, colorDepth).toInt*frequency)
+    val intensity = Counter(colorDepth bits)
 
     val ledMatrixCtrl = new LedMatrixCtrl()
     ledMatrixCtrl.io.output <> io.output
