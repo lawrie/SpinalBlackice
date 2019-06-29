@@ -71,3 +71,14 @@ object PdmTest {
   }
 }
 
+object PdmSim {
+  import spinal.core.sim._
+
+  def main(args: Array[String]) {
+    SimConfig.withWave.compile(new PdmTest(12)).doSim{ dut =>
+      dut.clockDomain.forkStimulus(1000000)
+    }
+  }
+}
+
+

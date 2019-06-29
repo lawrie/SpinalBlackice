@@ -11,6 +11,7 @@ class Envelope(accumulatorBits : Int = 26, sampleClkFreq: Int = 44100)  extends 
     val s = in UInt(4 bits)
     val r = in UInt(4 bits)
     val amplitude = out UInt(8 bits)
+    val stateOut = out UInt(8 bits)
   }
 
   val accumulator = Reg(UInt(accumulatorBits bits))
@@ -21,6 +22,7 @@ class Envelope(accumulatorBits : Int = 26, sampleClkFreq: Int = 44100)  extends 
   }
 
   val state = Reg(op) init op.Off
+
   val prevGate = Reg(Bool)
 
   val overflow = accumulator.msb
@@ -67,30 +69,35 @@ class Envelope(accumulatorBits : Int = 26, sampleClkFreq: Int = 44100)  extends 
 
   switch(state) {
     is(op.Attack) {
-      nextState := io.gate ? op.Release | op.Decay
+      nextState := io.gate ? op.Decay | op.Release
+      io.stateOut := 1
     }
     is(op.Decay) {
       nextState := io.gate ? op.Sustain | op.Release
+      io.stateOut := 4
     }
     is (op.Sustain) {
       nextState := io.gate ? op.Sustain | op.Release
+      io.stateOut := 2
     }
     is (op.Release) {
       nextState := io.gate ? op.Attack | op.Off
+      io.stateOut := 8
     }
     is (op.Off) {
       nextState := io.gate ? op.Attack | op.Off
+      io.stateOut := 0x10
     }
   }
 
-  when (io.gate && !prevGate) {
+  when (io.gate & !prevGate) {
     accumulator := 0
     state := op.Attack
-
+ 
     when (overflow) {
       accumulator := 0;
       decTmp := U(255).resized
-      state := nextState
+      //state := nextState
     } otherwise {
       switch(state) {
         is(op.Attack) {
