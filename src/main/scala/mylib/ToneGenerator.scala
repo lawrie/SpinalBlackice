@@ -79,8 +79,8 @@ class ToneGenerator(accumulatorBits: Int, pulseWidthBits: Int, outputBits: Int, 
   val saw = new ToneGeneratorSaw(accumulatorBits, outputBits)
   saw.io.accumulator := accumulator
 
-  //val noise = new ToneGeneratorNoise(accumulatorBits, outputBits)
-  //noise.io.accumulator := accumulator
+  val noise = new ToneGeneratorNoise(accumulatorBits, outputBits)
+  noise.io.accumulator := accumulator
 
   val sampleDomain = ClockDomain( clock=io.sampleClk)
 
@@ -103,9 +103,9 @@ class ToneGenerator(accumulatorBits: Int, pulseWidthBits: Int, outputBits: Int, 
       doutTemp := saw.io.dout ^ (1 << (outputBits - 1)) addTag(crossClockDomain)
     }
 
-    //when (io.enNoise) {
-    //  doutTemp := noise.io.dout ^ (1 << (outputBits - 1))
-    //}
+    when (io.enNoise) {
+      doutTemp := noise.io.dout ^ (1 << (outputBits - 1)) addTag(crossClockDomain)
+    }
 
     io.dout := doutTemp.asSInt addTag(crossClockDomain)
   }

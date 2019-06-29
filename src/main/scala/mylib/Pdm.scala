@@ -3,21 +3,21 @@ package mylib
 import spinal.core._
 import spinal.lib._
 
-class Pdm(width: Int) extends Component {
+class Pdm(dataBits: Int = 12) extends Component {
   val io = new Bundle {
-    val din = in SInt(width bits)
+    val din = in SInt(dataBits bits)
     val dout = out Bool
-    val accOut = out UInt(width + 1 bits)
+    val accOut = out UInt(dataBits + 1 bits)
   }
 
-  val accumulator = Reg(UInt(width+1 bits))
+  val accumulator = Reg(UInt(dataBits+1 bits))
   io.accOut := accumulator
   
-  val unsignedDin = (io.din.asUInt ^ (1 << (width-1)))
+  val unsignedDin = (io.din.asUInt ^ (1 << (dataBits-1)))
 
-  accumulator := accumulator(width-1 downto 0).resize(width+1) + unsignedDin.resize(width+1)
+  accumulator := accumulator(dataBits-1 downto 0).resize(dataBits+1) + unsignedDin.resize(dataBits+1)
 
-  io.dout := accumulator(width)
+  io.dout := accumulator(dataBits)
 }
 
 class ClkDivider(divisor: Int) extends Component {
@@ -34,7 +34,7 @@ class ClkDivider(divisor: Int) extends Component {
   io.cout := counter(27)
 }
 
-class PdmTest(width: Int) extends Component {
+class PdmTest(dataBits: Int = 12) extends Component {
   val io = new Bundle {
     val audio = out Bool
     val leds = out Bits(8 bits)
@@ -50,7 +50,7 @@ class PdmTest(width: Int) extends Component {
   val tickClk = new ClkDivider(clockHz / tickHz)
 
   val oneMHzDomain = new ClockDomain(clock=oneMHzClk.io.cout, reset=io.reset)
-  val pdm = new Pdm(width)
+  val pdm = new Pdm(dataBits)
 
   val oneMHzArea = new ClockingArea(oneMHzDomain) {
     val songPlayer = new SongPlayer(dataBits = 12)

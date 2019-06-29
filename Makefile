@@ -1,7 +1,8 @@
-VERILOG = LedMatrixTest.v
-PCF = ledmatrix.pcf
+VERILOG = PdmTest.v
+PCF = audio.pcf
 
 prog : bin/toplevel.bin
+	stty -F /dev/ttyACM0 raw
 	cat bin/toplevel.bin >/dev/ttyACM0
 
 bin/toplevel.json : ${VERILOG}
