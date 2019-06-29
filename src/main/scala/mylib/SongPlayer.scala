@@ -8,24 +8,7 @@ class SongPlayer(dataBits: Int = 12) extends Component {
     val sampleClk = in Bool
     val tickClk = in Bool
     val dout = out SInt(dataBits bits)
-  }
-
-  def noteToFreq(note : Int) : Int = {
-    note match {
-      case 1  => 17557 // C
-      case 2  => 18601 // C#
-      case 3  => 19709 // D
-      case 4  => 20897 // Eb
-      case 5  => 22121 // E
-      case 6  => 23436 // F
-      case 7  => 24830 // F#
-      case 8  => 26306 // G
-      case 9  => 27871 // Ab
-      case 10 => 29528 // A
-      case 11 => 31234 // Bb
-      case 12 => 33144 // B
-      case _ => 0
-    }
+    val ampOut = out UInt(8 bits)
   }
 
   val tune = Array(U(1), U(1), U(8), U(8), U(10), U(10), U(8), U(0))
@@ -42,7 +25,7 @@ class SongPlayer(dataBits: Int = 12) extends Component {
   io.dout := channel1.io.dout
   channel1.io.pulseWidth := 2048
   channel1.io.waveFormEnable := B"0110"
-  channel1.io.attack := U"0000"
+  channel1.io.attack := U"1111"
   channel1.io.decay := U"0000"
   channel1.io.sustain := U"1111"
   channel1.io.release := U"0110"
@@ -68,5 +51,7 @@ class SongPlayer(dataBits: Int = 12) extends Component {
       gate := False
     }
   }
+
+  io.ampOut := channel1.io.ampOut
 }
 

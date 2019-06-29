@@ -17,6 +17,7 @@ class Voice(outputBits: Int = 12, freqBits: Int = 16,
     val decay = in UInt(4 bits)
     val sustain = in UInt(4 bits)
     val release = in UInt(4 bits)
+    val ampOut = out UInt(8 bits)
   }
 
   val envelope = new Envelope()
@@ -24,7 +25,8 @@ class Voice(outputBits: Int = 12, freqBits: Int = 16,
   envelope.io.d := io.decay
   envelope.io.s := io.sustain
   envelope.io.r := io.release
-  envelope.io.gate := io.gate
+  //envelope.io.gate := io.gate
+  envelope.io.gate := True
 
   val toneGenerator = new ToneGenerator(
     accumulatorBits=accumulatorBits, 
@@ -42,9 +44,11 @@ class Voice(outputBits: Int = 12, freqBits: Int = 16,
 
   val amplitudeModulator = new AmplitudeModulator()
   amplitudeModulator.io.din := toneGenerator.io.dout
-  amplitudeModulator.io.amplitude := envelope.io.amplitude
+  //amplitudeModulator.io.amplitude := envelope.io.amplitude
+  amplitudeModulator.io.amplitude := 255
 
   io.dout := amplitudeModulator.io.dout
+  io.ampOut := envelope.io.amplitude
 }
 
 
