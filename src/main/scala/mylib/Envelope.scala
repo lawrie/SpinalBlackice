@@ -21,7 +21,7 @@ class Envelope(accumulatorBits : Int = 26, sampleClkFreq: Int = 44100)  extends 
     val Off, Attack, Decay, Sustain, Release = newElement()
   }
 
-  val state = Reg(op) init op.Off
+  val state = Reg(op)
 
   val prevGate = Reg(Bool)
 
@@ -93,42 +93,42 @@ class Envelope(accumulatorBits : Int = 26, sampleClkFreq: Int = 44100)  extends 
   when (io.gate & !prevGate) {
     accumulator := 0
     state := op.Attack
- 
-    when (overflow) {
-      accumulator := 0;
-      decTmp := U(255).resized
-      //state := nextState
-    } otherwise {
-      switch(state) {
-        is(op.Attack) {
-          accumulator := accumulator + attackRom(io.a)
-          amplitude := accumulator(accumulatorBits - 1 downto accumulatorBits - 8)
-        }
-        is(op.Decay) {
-          accumulator := accumulator + decayRom(io.d)
-          decTmp := ((expOut * sustainVolume) >> 8).resized
-          amplitude := decTmp.resized
-        }
-        is(op.Sustain) {
-          amplitude := sustainVolume
-          state := nextState
-        }
-        is(op.Release) {
-          accumulator := accumulator + decayRom(io.r)
-          relTmp := ((expOut * sustainVolume) >> 8).resized
-          amplitude := relTmp.resized
+  }
+
+  when (overflow) {
+    accumulator := 0;
+    decTmp := U(255).resized
+    state := nextState
+  } otherwise {
+    switch(state) {
+      is(op.Attack) {
+        accumulator := accumulator + attackRom(io.a)
+        amplitude := accumulator(accumulatorBits - 1 downto accumulatorBits - 8)
+      }
+      is(op.Decay) {
+        accumulator := accumulator + decayRom(io.d)
+        decTmp := ((expOut * sustainVolume) >> 8).resized
+        amplitude := decTmp.resized
+      }
+      is(op.Sustain) {
+        amplitude := sustainVolume
+        state := nextState
+      }
+      is(op.Release) {
+        accumulator := accumulator + decayRom(io.r)
+        relTmp := ((expOut * sustainVolume) >> 8).resized
+        amplitude := relTmp.resized
           
-          when (io.gate) {
-            amplitude := 0
-            accumulator := 0
-            state := nextState
-          }
-        }
-        default {
+        when (io.gate) {
           amplitude := 0
           accumulator := 0
           state := nextState
         }
+      }
+      default {
+        amplitude := 0
+        accumulator := 0
+        state := nextState
       }
     }
   } 

@@ -44,12 +44,13 @@ class PdmTest(dataBits: Int = 12) extends Component {
   val clockHz = 100000000
   val bpm = 120
   val tickHz = ((bpm * 4) / 60)
+  //val tickHz = 1000000
 
   val oneMHzClk = new ClkDivider(clockHz / 1000000)
   val sampleClk = new ClkDivider(clockHz / 44100)
   val tickClk = new ClkDivider(clockHz / tickHz)
 
-  val oneMHzDomain = new ClockDomain(clock=oneMHzClk.io.cout, reset=io.reset)
+  val oneMHzDomain = new ClockDomain(clock=oneMHzClk.io.cout, reset=clockDomain.reset)
   val pdm = new Pdm(dataBits)
 
   val oneMHzArea = new ClockingArea(oneMHzDomain) {
@@ -76,7 +77,9 @@ object PdmSim {
 
   def main(args: Array[String]) {
     SimConfig.withWave.compile(new PdmTest(12)).doSim{ dut =>
-      dut.clockDomain.forkStimulus(1000000)
+      dut.clockDomain.forkStimulus(100000000)
+
+      dut.clockDomain.waitSampling(100000)
     }
   }
 }

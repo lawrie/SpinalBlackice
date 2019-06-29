@@ -43,8 +43,8 @@ class Voice(outputBits: Int = 12, freqBits: Int = 16,
 
   val amplitudeModulator = new AmplitudeModulator()
   amplitudeModulator.io.din := toneGenerator.io.dout
-  //amplitudeModulator.io.amplitude := envelope.io.amplitude
-  amplitudeModulator.io.amplitude := 255
+  amplitudeModulator.io.amplitude := envelope.io.amplitude
+  //amplitudeModulator.io.amplitude := 255
 
   io.dout := amplitudeModulator.io.dout
   io.ampOut := envelope.io.stateOut.resized
