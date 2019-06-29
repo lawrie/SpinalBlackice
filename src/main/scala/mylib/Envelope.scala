@@ -11,7 +11,6 @@ class Envelope(accumulatorBits : Int = 26, sampleClkFreq: Int = 44100)  extends 
     val s = in UInt(4 bits)
     val r = in UInt(4 bits)
     val amplitude = out UInt(8 bits)
-    val stateOut = out UInt(8 bits)
   }
 
   val accumulator = Reg(UInt(accumulatorBits bits))
@@ -42,11 +41,11 @@ class Envelope(accumulatorBits : Int = 26, sampleClkFreq: Int = 44100)  extends 
   val decayIncs = Array(0.006, 0.024, 0.048, 0.072, 0.114, 0.168, 0.204,
                         0.24, 0.3, 0.75, 1,5, 2.4, 3.0, 9.0, 15.0, 24.0)
 
-  def attackTable = for(i <- 0 until 15) yield {
+  def attackTable = for(i <- 0 until 16) yield {
     U(calculatePhaseIncrement(attackIncs(i)))
   }
 
-  def decayTable = for(i <- 0 until 15) yield {
+  def decayTable = for(i <- 0 until 16) yield {
     U(calculatePhaseIncrement(decayIncs(i)))
   }
 
@@ -70,23 +69,18 @@ class Envelope(accumulatorBits : Int = 26, sampleClkFreq: Int = 44100)  extends 
   switch(state) {
     is(op.Attack) {
       nextState := io.gate ? op.Decay | op.Release
-      io.stateOut := 1
     }
     is(op.Decay) {
       nextState := io.gate ? op.Sustain | op.Release
-      io.stateOut := 4
     }
     is (op.Sustain) {
       nextState := io.gate ? op.Sustain | op.Release
-      io.stateOut := 2
     }
     is (op.Release) {
       nextState := io.gate ? op.Attack | op.Off
-      io.stateOut := 8
     }
     is (op.Off) {
       nextState := io.gate ? op.Attack | op.Off
-      io.stateOut := 0x10
     }
   }
 

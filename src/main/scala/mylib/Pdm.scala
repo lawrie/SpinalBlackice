@@ -16,7 +16,6 @@ class Pdm(dataBits: Int = 12) extends Component {
   val unsignedDin = (io.din.asUInt ^ (1 << (dataBits-1)))
 
   accumulator := accumulator(dataBits-1 downto 0).resize(dataBits+1) + unsignedDin.resize(dataBits+1)
-
   io.dout := accumulator(dataBits)
 }
 
@@ -26,11 +25,9 @@ class ClkDivider(divisor: Int) extends Component {
   }
 
   val counter = Reg(UInt(28 bits)) init 0
-
   val increment = (1 << 28) / divisor
 
   counter := counter + increment
-
   io.cout := counter(27)
 }
 
@@ -38,7 +35,6 @@ class PdmTest(dataBits: Int = 12) extends Component {
   val io = new Bundle {
     val audio = out Bool
     val leds = out Bits(8 bits)
-    val reset = in Bool
   }
 
   val clockHz = 100000000
@@ -59,10 +55,9 @@ class PdmTest(dataBits: Int = 12) extends Component {
     songPlayer.io.tickClk := tickClk.io.cout
 
     pdm.io.din := songPlayer.io.dout addTag(crossClockDomain)
-    io.leds := songPlayer.io.ampOut.asBits
   }
 
-  //io.leds := pdm.io.accOut(12 downto 5).asBits
+  io.leds := pdm.io.accOut(12 downto 5).asBits
   io.audio := pdm.io.dout
 }
 
@@ -77,7 +72,7 @@ object PdmSim {
 
   def main(args: Array[String]) {
     SimConfig.withWave.compile(new PdmTest(12)).doSim{ dut =>
-      dut.clockDomain.forkStimulus(100000000)
+      dut.clockDomain.forkStimulus(100)
 
       dut.clockDomain.waitSampling(100000)
     }

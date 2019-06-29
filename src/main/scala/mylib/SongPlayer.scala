@@ -8,7 +8,6 @@ class SongPlayer(dataBits: Int = 12) extends Component {
     val sampleClk = in Bool
     val tickClk = in Bool
     val dout = out SInt(dataBits bits)
-    val ampOut = out UInt(8 bits)
   }
 
   val tune = Array(U(1), U(1), U(8), U(8), U(10), U(10), U(8), U(0))
@@ -25,7 +24,7 @@ class SongPlayer(dataBits: Int = 12) extends Component {
   io.dout := channel1.io.dout
   channel1.io.pulseWidth := 2048
   channel1.io.waveFormEnable := B"0110"
-  channel1.io.attack := U"0000"
+  channel1.io.attack := U"0011"
   channel1.io.decay := U"0000"
   channel1.io.sustain := U"1111"
   channel1.io.release := U"0110"
@@ -51,7 +50,5 @@ class SongPlayer(dataBits: Int = 12) extends Component {
       gate := False
     }
   }
-
-  io.ampOut := channel1.io.ampOut
 }
 
